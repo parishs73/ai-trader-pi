@@ -1,0 +1,17 @@
+apiVersion: 1
+
+datasources:
+  - name: Trader-db
+    type: postgres
+    url: postgres:5432
+    user: trader
+    access: proxy
+    secureJsonData:
+      password: 'mypassword'
+    jsonData:
+      database: stocks
+      sslmode:  disable
+      postgresVersion: 903
+      timescaledb: false
+    isDefault: true
+    editable: true

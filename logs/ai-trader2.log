@@ -1,0 +1,64 @@
+2026-06-29 14:58:20,999 [INFO] AI Strategic Execution engine linked successfully to PostgreSQL.
+2026-06-29 14:58:21,006 [ERROR] Database query error: could not translate host name "postgres" to address: No address associated with hostname
+
+2026-06-29 14:58:31,014 [ERROR] Database query error: could not translate host name "postgres" to address: No address associated with hostname
+
+2026-06-29 14:59:32,727 [INFO] AI Strategic Execution engine linked successfully to PostgreSQL.
+2026-06-29 14:59:32,770 [ERROR] Database query error: relation "your_table_name" does not exist
+LINE 3:         FROM your_table_name 
+                     ^
+
+2026-06-29 15:01:10,808 [INFO] AI Strategic Execution engine linked successfully to PostgreSQL.
+2026-06-29 15:01:10,862 [INFO] Processing new data point for AAPL at 2026-06-29 14:00:00
+2026-06-29 15:01:10,870 [ERROR] AI Matrix Error: HTTPConnectionPool(host='ollama-service', port=11434): Max retries exceeded with url: /api/generate (Caused by NameResolutionError("<urllib3.connection.HTTPConnection object at 0x7ffede0c9940>: Failed to resolve 'ollama-service' ([Errno -5] No address associated with hostname)"))
+2026-06-29 15:01:10,870 [INFO] AI_METRIC | Action: HOLD | Ticker: AAPL | Conf: 0.0 | Reason: Error linking to Ollama container
+2026-06-29 15:02:00,951 [INFO] Processing new data point for AAPL at 2026-06-29 14:01:00
+2026-06-29 15:02:00,958 [ERROR] AI Matrix Error: HTTPConnectionPool(host='ollama-service', port=11434): Max retries exceeded with url: /api/generate (Caused by NameResolutionError("<urllib3.connection.HTTPConnection object at 0x7ffede0ee0d0>: Failed to resolve 'ollama-service' ([Errno -5] No address associated with hostname)"))
+2026-06-29 15:02:00,958 [INFO] AI_METRIC | Action: HOLD | Ticker: AAPL | Conf: 0.0 | Reason: Error linking to Ollama container
+2026-06-29 15:03:01,055 [INFO] Processing new data point for AAPL at 2026-06-29 14:02:00
+2026-06-29 15:03:01,060 [ERROR] AI Matrix Error: HTTPConnectionPool(host='ollama-service', port=11434): Max retries exceeded with url: /api/generate (Caused by NameResolutionError("<urllib3.connection.HTTPConnection object at 0x7ffede0eead0>: Failed to resolve 'ollama-service' ([Errno -5] No address associated with hostname)"))
+2026-06-29 15:03:01,060 [INFO] AI_METRIC | Action: HOLD | Ticker: AAPL | Conf: 0.0 | Reason: Error linking to Ollama container
+2026-06-29 15:03:11,077 [INFO] Processing new data point for GOOGL at 2026-06-29 14:03:00
+2026-06-29 15:03:11,082 [ERROR] AI Matrix Error: HTTPConnectionPool(host='ollama-service', port=11434): Max retries exceeded with url: /api/generate (Caused by NameResolutionError("<urllib3.connection.HTTPConnection object at 0x7ffede08b230>: Failed to resolve 'ollama-service' ([Errno -5] No address associated with hostname)"))
+2026-06-29 15:03:11,082 [INFO] AI_METRIC | Action: HOLD | Ticker: GOOGL | Conf: 0.0 | Reason: Error linking to Ollama container
+2026-06-29 15:05:43,829 [INFO] AI Strategic Execution engine linked successfully to PostgreSQL.
+2026-06-29 15:05:43,843 [INFO] Processing new data point for AAPL at 2026-06-29 14:05:00
+2026-06-29 15:05:58,862 [ERROR] AI Matrix Error: HTTPConnectionPool(host='127.0.0.1', port=11434): Read timed out. (read timeout=15)
+2026-06-29 15:05:58,863 [INFO] AI_METRIC | Action: HOLD | Ticker: AAPL | Conf: 0.0 | Reason: Error linking to Ollama container
+2026-06-29 15:06:18,897 [INFO] Processing new data point for AAPL at 2026-06-29 14:06:00
+2026-06-29 15:06:33,914 [ERROR] AI Matrix Error: HTTPConnectionPool(host='127.0.0.1', port=11434): Read timed out. (read timeout=15)
+2026-06-29 15:06:33,915 [INFO] AI_METRIC | Action: HOLD | Ticker: AAPL | Conf: 0.0 | Reason: Error linking to Ollama container
+2026-06-29 15:07:46,820 [INFO] AI Strategic Execution engine linked successfully to PostgreSQL.
+2026-06-29 15:07:46,834 [INFO] Processing new data point for AAPL at 2026-06-29 14:07:00
+2026-06-29 15:10:31,197 [INFO] AI Strategic Execution engine linked successfully to PostgreSQL.
+2026-06-29 15:10:31,211 [INFO] Processing new data point for AAPL at 2026-06-29 14:10:00
+2026-06-29 15:10:46,231 [ERROR] AI Matrix Error: HTTPConnectionPool(host='127.0.0.1', port=11434): Read timed out. (read timeout=15)
+2026-06-29 15:10:46,231 [INFO] AI_METRIC | Action: HOLD | Ticker: AAPL | Conf: 0.0 | Reason: Error linking to Ollama container
+2026-06-29 15:11:26,294 [INFO] Processing new data point for AAPL at 2026-06-29 14:11:00
+2026-06-29 15:11:41,310 [ERROR] AI Matrix Error: HTTPConnectionPool(host='127.0.0.1', port=11434): Read timed out. (read timeout=15)
+2026-06-29 15:11:41,311 [INFO] AI_METRIC | Action: HOLD | Ticker: AAPL | Conf: 0.0 | Reason: Error linking to Ollama container
+2026-06-29 15:12:55,012 [INFO] AI Strategic Execution engine linked successfully to PostgreSQL.
+2026-06-29 15:12:55,025 [INFO] Processing new data point for AAPL at 2026-06-29 14:12:00
+2026-06-29 15:13:16,092 [ERROR] AI Matrix Error: Expecting value: line 1 column 1 (char 0)
+2026-06-29 15:13:16,093 [INFO] AI_METRIC | Action: HOLD | Ticker: AAPL | Conf: 0.0 | Reason: Error linking to Ollama container
+2026-06-29 15:13:36,122 [INFO] Processing new data point for AAPL at 2026-06-29 14:13:00
+2026-06-29 15:13:57,819 [ERROR] AI Matrix Error: Expecting value: line 1 column 1 (char 0)
+2026-06-29 15:13:57,819 [INFO] AI_METRIC | Action: HOLD | Ticker: AAPL | Conf: 0.0 | Reason: Error linking to Ollama container
+2026-06-29 15:14:37,888 [INFO] Processing new data point for AAPL at 2026-06-29 14:14:00
+2026-06-29 15:15:01,844 [ERROR] AI Matrix Error: Expecting value: line 1 column 1 (char 0)
+2026-06-29 15:15:01,844 [INFO] AI_METRIC | Action: HOLD | Ticker: AAPL | Conf: 0.0 | Reason: Error linking to Ollama container
+2026-06-29 15:15:41,914 [INFO] Processing new data point for AAPL at 2026-06-29 14:15:00
+2026-06-29 15:16:06,642 [ERROR] AI Matrix Error: Expecting value: line 1 column 1 (char 0)
+2026-06-29 15:16:06,642 [INFO] AI_METRIC | Action: HOLD | Ticker: AAPL | Conf: 0.0 | Reason: Error linking to Ollama container
+2026-06-29 15:16:46,711 [INFO] Processing new data point for AAPL at 2026-06-29 14:16:00
+2026-06-29 15:17:08,284 [ERROR] AI Matrix Error: Expecting value: line 1 column 1 (char 0)
+2026-06-29 15:17:08,285 [INFO] AI_METRIC | Action: HOLD | Ticker: AAPL | Conf: 0.0 | Reason: Error linking to Ollama container
+2026-06-29 15:17:48,354 [INFO] Processing new data point for AAPL at 2026-06-29 14:17:00
+2026-06-29 15:18:09,928 [ERROR] AI Matrix Error: Expecting value: line 1 column 1 (char 0)
+2026-06-29 15:18:09,928 [INFO] AI_METRIC | Action: HOLD | Ticker: AAPL | Conf: 0.0 | Reason: Error linking to Ollama container
+2026-06-29 15:21:59,919 [INFO] AI Strategic Execution engine linked successfully to PostgreSQL.
+2026-06-29 15:21:59,933 [INFO] Processing new data point for AAPL at 2026-06-29 14:21:00
+2026-06-29 15:26:14,123 [INFO] AI Strategic Execution engine linked successfully to PostgreSQL.
+2026-06-29 15:26:14,136 [INFO] Processing new data point for AAPL at 2026-06-29 14:25:00
+2026-06-29 15:27:14,199 [ERROR] AI Matrix Error: HTTPConnectionPool(host='127.0.0.1', port=11434): Read timed out. (read timeout=60)
+2026-06-29 15:27:14,199 [INFO] AI_METRIC | Action: HOLD | Ticker: AAPL | Conf: 0.0 | Reason: Error linking to Ollama container

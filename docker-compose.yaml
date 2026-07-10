@@ -1,0 +1,83 @@
+services:
+# Set up the database for storing stock trading data 
+
+  postgres:
+    image: postgres:16
+
+    container_name: trader-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: trader
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: stocks
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - ./database:/var/lib/postgresql/data
+
+# Set up the dashboard for monitoring the stock trading system
+  grafana:
+    image: grafana/grafana
+
+    container_name: trader-dashboard
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+
+    environment:
+      - GF_INSTALL_PLUGINS=volkovlabs-echarts-panel,grafana-clock-panel
+
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+
+# Set up the stock data collector service
+  collector:
+    build: ./collector
+    container_name: stock_pipeline
+    restart: unless-stopped
+    volumes:
+      - ./logs:/logs
+    environment:
+      TZ: Europe/London
+
+# Set up the Ollama service for AI model execution
+  ollama-service:
+    image: ollama/ollama:latest
+    container_name: ollama-service
+    restart: always
+    environment:
+      - OLLAMA_NUM_PARALLEL=2
+    deploy:
+      resources:
+        limits:
+          cpus: '2.5'
+    volumes:
+      - ollama_storage:/root/.ollama
+      - ./models:/app/models
+    ports:
+      - "11434:11434"
+
+# Set up the AI executor service that runs the trading strategy
+  ai-executor:
+    build:
+      context: ./collector # reuses collector dockerfile
+    container_name: ai-exectutor
+    restart: unless-stopped
+    volumes:
+      - ./strategies:/app/strategies
+      - ./logs:/app/logs
+      - ./models:/app/models
+    command: python -u /app/strategies/ai-trader2.py
+    depends_on:
+      - ollama-service
+    environment:
+      - ALPACA_API_KEY_ID=<my key>
+      - ALPACA_API_SECRET_KEY=<SECRET KEY>
+
+volumes:
+  grafana-data:
+  ollama_storage:
+
