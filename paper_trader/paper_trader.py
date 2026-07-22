@@ -7,7 +7,8 @@ from datetime import datetime, timezone
 # DB CONFIG
 # ---------------------------
 DB_CONFIG = {
-    "host": "postgres",
+#    "host": "postgres",
+    "host": "localhost",
     "database": "stocks",
     "user": "trader",
     "password": "mypassword",
@@ -17,7 +18,7 @@ STARTING_CASH = 100000
 POSITION_SIZE = 5000
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOG_DIR = os.path.join(PROJECT_ROOT, "logs")
-LOG_FILENAME = "paper_trading_test.log"
+LOG_FILENAME = "paper_trader.log"
 # ---------------------------
 # DB CONNECTION
 # ---------------------------
@@ -55,14 +56,18 @@ def log(message):
 # GET LATEST PRICES
 # -------------------------
 
-def get_latest_price(conn, cur, symbol):
-    
+def get_latest_price(cur, symbol):
+
     cur.execute(
         "select close FROM stock_data where symbol = %s order by timestamp DESC Limit 1;",
-            (symbol)
+            (symbol,)
     )
 
-    return cur.fetchone() is not None
+    row = cur.fetchone()
+    if row:
+        return float(row[0])
+
+    return None
 
 # -------------------------
 # GET CASH BALANCE
@@ -70,23 +75,20 @@ def get_latest_price(conn, cur, symbol):
 
 def get_cash_balance(cur):
 
-    cur.execute("""
-        SELECT cash_balance
-        FROM ps2
-        ORDER BY updated_at DESC
-        LIMIT 1
-    """)
+        cur.execute(
+            "SELECT cash_balance FROM ps2 ORDER BY updated_at DESC LIMIT 1;"
+        )
 
-    return float(cur.fetchone()[0])
-    
+        return float(cur.fetchone()[0])
+
 # --------------------------
 # GET POSITION
 # --------------------------
 
-def get_position(conn, cur, symbol):
+def get_position(cur, symbol):
     cur.execute(
         "Select quantity, avg_cost from pp2 where symbol = %s",
-        (symbol)
+        (symbol,)
     )
     return cur.fetchone()
 
@@ -95,18 +97,18 @@ def get_position(conn, cur, symbol):
 # -------------------------
 
 def execute_buy(conn, cur, signal_id, symbol):
-    
+
     price= get_latest_price(cur, symbol)
 
     if not price:
         return
-    
+
     existing = get_position(cur, symbol)
 
     if existing:
         logging.info(f"{symbol} already owned")
         return
-    
+
     cash = get_cash_balance(cur)
 
     shares = int(POSITION_SIZE / price)
@@ -116,10 +118,10 @@ def execute_buy(conn, cur, signal_id, symbol):
     if cost > cash:
         log(f"WARNING:Insufficient cash")
         return
-    
+
 
     cur.execute(
-        "INSERT into pt2 (symbol, trade_type, quantity, rice, trade_value, signal_id) VALUES (%s,%s,%s,%s,%s,%s)",
+        "INSERT into pt2 (symbol, trade_type, quantity, price, trade_value, signal_id) VALUES (%s,%s,%s,%s,%s,%s)",
         (symbol, "BUY", shares, price, cost, signal_id)
     )
 
@@ -165,10 +167,10 @@ def execute_sell(conn, cur, signal_id, symbol):
             updated_at = NOW()""",
             (proceeds,profit)
     )
-    
+
 
     conn.commit()
-    
+
     logging.info(f"SELL {quantity} {symbol} @ {price}")
 
 # ---------------------
