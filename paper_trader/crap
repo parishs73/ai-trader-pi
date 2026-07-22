@@ -1,0 +1,11 @@
+                           Table "public.pt2"
+   Column    |           Type           | Collation | Nullable | Default
+-------------+--------------------------+-----------+----------+---------
+ id          | integer                  |           |          |
+ symbol      | text                     |           |          |
+ trade_type  | text                     |           |          |
+ quantity    | integer                  |           |          |
+ price       | double precision         |           |          |
+ trade_value | double precision         |           |          |
+ signal_id   | integer                  |           |          |
+ timestamp   | timestamp with time zone |           |          |

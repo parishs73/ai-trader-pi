@@ -57,6 +57,9 @@ OLLAMA_URL = "http://ollama-service:11434/api/generate"
 
 # OLLAMA_URL = "http://127.0.0.1:11434/api/generate"
 
+# ---------------------
+# DB CONNECTION
+# ---------------------
 def get_conn():
     return psycopg2.connect(**DB_CONFIG)
 
