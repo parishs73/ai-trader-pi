@@ -7,8 +7,8 @@ from datetime import datetime, timezone
 # DB CONFIG
 # ---------------------------
 DB_CONFIG = {
-#    "host": "postgres",
-    "host": "localhost",
+    "host": "postgres",
+#    "host": "localhost",
     "database": "stocks",
     "user": "trader",
     "password": "mypassword",
@@ -18,7 +18,7 @@ STARTING_CASH = 100000
 POSITION_SIZE = 5000
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOG_DIR = os.path.join(PROJECT_ROOT, "logs")
-LOG_FILENAME = "paper_trader.log"
+LOG_FILENAME = "paper_trading.log"
 # ---------------------------
 # DB CONNECTION
 # ---------------------------
@@ -121,12 +121,12 @@ def execute_buy(conn, cur, signal_id, symbol):
 
 
     cur.execute(
-        "INSERT into portfolio_trades (symbol, trade_type, quantity, price, trade_value, signal_id) VALUES (%s,%s,%s,%s,%s,%s)",
-        (symbol, "BUY", shares, price, cost, signal_id)
+        "INSERT into portfolio_trades (timestamp, symbol, trade_type, quantity, price, trade_value, signal_id) VALUES (%s,%s,%s,%s,%s,%s,%s)",
+        (datetime.now(timezone.utc),symbol, "BUY", shares, price, cost, signal_id)
     )
 
     cur.execute(
-        "INSERT INTO portfolio_positions (symbol, quantity, avg_cost) VALUES (%s,%s,%s)",
+        "INSERT INTO portfolio_positions(symbol, quantity, avg_cost) VALUES (%s,%s,%s)",
         (symbol,shares,price)
     )
 
@@ -154,8 +154,8 @@ def execute_sell(conn, cur, signal_id, symbol):
     profit = (price - avg_cost) * quantity
 
     cur.execute(
-        "insert into portfolio_trades (symbol,trade_type,quantity,price,trade_value,signal_id) Values (%s,%s,%s,%s,%s,%s)",
-        (symbol,"SELL",quantity,price,proceeds,signal_id)
+        "insert into portfolio_trades (timestamp,symbol,trade_type,quantity,price,trade_value,signal_id) Values (%s,%s,%s,%s,%s,%s)",
+        (datetime.now(timezone.utc),symbol,"SELL",quantity,price,proceeds,signal_id)
     )
     cur.execute(
         "delete from portfolio_positions where symbol =%s",
@@ -164,7 +164,7 @@ def execute_sell(conn, cur, signal_id, symbol):
     cur.execute(
         """update portfolio_summary set cash_balance = cash_balance + %s,
             realized_pnl = realized_pnl + %s,
-            updated_at = NOW()""",
+            updated_at = now()""",
             (proceeds,profit)
     )
 
@@ -258,7 +258,7 @@ def update_portfolio_summary(cur):
     ) * 100
 
     cur.execute("""
-        UPDATE ps2
+        UPDATE portfolio_summary
         SET portfolio_value=%s,
             unrealized_pnl=%s,
             total_return_pct=%s,
@@ -270,6 +270,53 @@ def update_portfolio_summary(cur):
         total_return
     ))
 
+# -------------------------
+# RECORD SNAPSHOT
+# -------------------------
+
+def record_portfolio_snapshot(conn, cur):
+
+    cur.execute("""
+        SELECT
+            cash_balance,
+            portfolio_value,
+            realized_pnl,
+            unrealized_pnl,
+            total_return_pct,
+            updated_at
+        FROM portfolio_summary
+        LIMIT 1
+    """)
+
+    row = cur.fetchone()
+
+    if not row:
+        log(f"WHAT")
+        return
+
+    cash_balance, portfolio_value, realized_pnl, unrealized_pnl, total_return_pct, updated_at = row
+
+    cur.execute("""
+        INSERT INTO portfolio_history (
+            cash_balance,
+            portfolio_value,
+            realized_pnl,
+            unrealized_pnl,
+            total_return_pct,
+            timestamp
+        )
+        VALUES (%s,%s,%s,%s,%s,%s)
+    """,
+    (
+        cash_balance,
+        portfolio_value,
+        realized_pnl,
+        unrealized_pnl,
+        total_return_pct,
+        updated_at
+    ))
+    log(f"Cash Balance = {cash_balance}, Portfolio Value = {portfolio_value}, P&L = {realized_pnl}, Total Return = {total_return_pct}%")
+    conn.commit()
 
 # -------------------------
 # PROCESS SIGNALS
@@ -325,6 +372,8 @@ def main():
     update_positions(cur)
 
     update_portfolio_summary(cur)
+
+    record_portfolio_snapshot(conn, cur)
 
     conn.commit()
 

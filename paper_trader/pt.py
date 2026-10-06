@@ -119,8 +119,8 @@ def execute_buy(conn, cur, signal_id, symbol):
     
 
     cur.execute(
-        "INSERT into pt2 (symbol, trade_type, quantity, rice, trade_value, signal_id) VALUES (%s,%s,%s,%s,%s,%s)",
-        (symbol, "BUY", shares, price, cost, signal_id)
+        "INSERT into pt2 (timestamp, symbol, trade_type, quantity, price, trade_value, signal_id) VALUES (%s,%s,%s,%s,%s,%s,%s)",
+        (datetime.now(timezone.utc), symbol, "BUY", shares, price, cost, signal_id)
     )
 
     cur.execute(
@@ -152,8 +152,8 @@ def execute_sell(conn, cur, signal_id, symbol):
     profit = (price - avg_cost) * quantity
 
     cur.execute(
-        "insert into pt2 (symbol,trade_type,quantity,price,trade_value,signal_id) Values (%s,%s,%s,%s,%s,%s)",
-        (symbol,"SELL",quantity,price,proceeds,signal_id)
+        "insert into pt2 (timestamp, symbol,trade_type,quantity,price,trade_value,signal_id) Values (%s,%s,%s,%s,%s,%s,%s)",
+        (datetime.now(timezone.utc),symbol,"SELL",quantity,price,proceeds,signal_id)
     )
     cur.execute(
         "delete from pp2 where symbol =%s",
