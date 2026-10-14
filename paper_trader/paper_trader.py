@@ -76,7 +76,7 @@ def get_latest_price(cur, symbol):
 def get_cash_balance(cur):
 
         cur.execute(
-            "SELECT cash_balance FROM ps2 ORDER BY updated_at DESC LIMIT 1;"
+            "SELECT cash_balance FROM portfolio_summary ORDER BY updated_at DESC LIMIT 1;"
         )
 
         return float(cur.fetchone()[0])
@@ -87,7 +87,7 @@ def get_cash_balance(cur):
 
 def get_position(cur, symbol):
     cur.execute(
-        "Select quantity, avg_cost from pp2 where symbol = %s",
+        "Select quantity, avg_cost from portfolio_positions where symbol = %s",
         (symbol,)
     )
     return cur.fetchone()
@@ -121,17 +121,17 @@ def execute_buy(conn, cur, signal_id, symbol):
 
 
     cur.execute(
-        "INSERT into pt2 (symbol, trade_type, quantity, price, trade_value, signal_id) VALUES (%s,%s,%s,%s,%s,%s)",
+        "INSERT into portfolio_trades (symbol, trade_type, quantity, price, trade_value, signal_id) VALUES (%s,%s,%s,%s,%s,%s)",
         (symbol, "BUY", shares, price, cost, signal_id)
     )
 
     cur.execute(
-        "INSERT INTO pp2(symbol, quantity, avg_cost) VALUES (%s,%s,%s)",
+        "INSERT INTO portfolio_positions (symbol, quantity, avg_cost) VALUES (%s,%s,%s)",
         (symbol,shares,price)
     )
 
     cur.execute(
-        "update ps2 set cash_balance = cash_balance -%s, updated_at = now()",
+        "update portfolio_summary set cash_balance = cash_balance -%s, updated_at = now()",
         (cost,)
     )
 
@@ -154,15 +154,15 @@ def execute_sell(conn, cur, signal_id, symbol):
     profit = (price - avg_cost) * quantity
 
     cur.execute(
-        "insert into pt2 (symbol,trade_type,quantity,price,trade_value,signal_id) Values (%s,%s,%s,%s,%s,%s)",
+        "insert into portfolio_trades (symbol,trade_type,quantity,price,trade_value,signal_id) Values (%s,%s,%s,%s,%s,%s)",
         (symbol,"SELL",quantity,price,proceeds,signal_id)
     )
     cur.execute(
-        "delete from pp2 where symbol =%s",
+        "delete from portfolio_positions where symbol =%s",
         (symbol,)
     )
     cur.execute(
-        """update ps2 set cash_balance = cash_balance + %s,
+        """update portfolio_summary set cash_balance = cash_balance + %s,
             realized_pnl = realized_pnl + %s,
             updated_at = NOW()""",
             (proceeds,profit)
@@ -182,7 +182,7 @@ def update_positions(cur):
         SELECT symbol,
                quantity,
                avg_cost
-        FROM pp2
+        FROM portfolio_positions
     """)
 
     positions = cur.fetchall()
@@ -205,7 +205,7 @@ def update_positions(cur):
         total_unrealized += pnl
 
         cur.execute("""
-            UPDATE pp2
+            UPDATE portfolio_positions
             SET current_price=%s,
                 market_value=%s,
                 unrealized_pnl=%s,
@@ -228,7 +228,7 @@ def update_portfolio_summary(cur):
     cur.execute("""
         SELECT cash_balance,
                realized_pnl
-        FROM ps2
+        FROM portfolio_summary
         ORDER BY updated_at DESC
         LIMIT 1
     """)
@@ -245,7 +245,7 @@ def update_portfolio_summary(cur):
             SUM(unrealized_pnl),
             0
         )
-        FROM pp2
+        FROM portfolio_positions
     """)
 
     market_value, unrealized = cur.fetchone()
@@ -281,7 +281,7 @@ def process_signals(conn, cur):
         SELECT id,
                symbol,
                action
-        FROM ai_signals2
+        FROM ai_signals
         WHERE processed = FALSE
         ORDER BY timestamp
     """)
@@ -307,7 +307,7 @@ def process_signals(conn, cur):
             )
 
         cur.execute("""
-            UPDATE ai_signals2
+            UPDATE ai_signals
             SET processed = TRUE
             WHERE id = %s
         """,

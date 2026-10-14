@@ -10,7 +10,7 @@ import os
 # ---------------------------
 # CONFIG
 # ---------------------------
-TICKERS = ["AAPL", "TSLA", "AMZN", "MSFT", "GOOGL", "META", "NVDA", "JPM", "V", "DIS", "COF", "AZN.L", "4503.T"]
+TICKERS = ["AAPL", "TSLA", "AMZN", "MSFT", "GOOGL", "META", "NVDA", "JPM", "V", "DIS", "COF", "4503.T", "MU", "AMD", "AVGO", "PLTR"]
 
 TICKER_META = {
     "AAPL": "Apple Inc.",
@@ -24,29 +24,30 @@ TICKER_META = {
     "V": "Visa Inc.",
     "DIS": "The Walt Disney Company",
     "COF": "Capital One Financial Corporation",
-    "AZN.L": "Astrazeneca PLC",
-    "4503.T": "Astellas Pharma Inc."
+    "4503.T": "Astellas Pharma Inc.",
+    "MU": "Micron Technology",
+    "AMD": "Advanced Micro Devices",
+    "AVGO": "Broadcom Inc.",
+    "PLTR": "Palantir Technologies"
 }
 
 DB_CONFIG = {
     "dbname": "stocks",
     "user": "trader",
     "password": "mypassword",
-    #"host": "localhost", # unhash if testing locally and hashout line below
+    #"host": "localhost",
     "host": "postgres",
     "port": 5432
 }
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LOG_DIR = os.path.join(PROJECT_ROOT, "logs")
-LOG_FILENAME = "stock_pipeline.log"
+
 # ---------------------------
 # LOGGING
 # ---------------------------
 
-os.makedirs(LOG_DIR, exist_ok=True)
+os.makedirs("/logs", exist_ok=True)
 
-LOG_FILE = os.path.join(LOG_DIR, LOG_FILENAME)
+LOG_FILE = "/logs/pipeline.log"
 
 logging.basicConfig(
      level=logging.INFO,
@@ -178,7 +179,7 @@ def run_once():
         for symbol in TICKERS:
             data = fetch_data(symbol)
             log(f"Fetching data for {data['name']} stocks...")
- 
+
             if data:
                  if check_if_exists(conn, data["symbol"], data["timestamp"]):
                     log(f"Skipping {symbol}: Timestamp {data['timestamp']} already in database.")
@@ -188,12 +189,12 @@ def run_once():
                  log(f"Saved {data['name']}, {symbol} @ {data['close']}")
             else:
                  log(f"Skipping DB write fo {symbol} due to missing data.")
-        log("Pipeline Complete")
+        log(f"Pipeline Complete")
     except Exception as e:
             #print("Error:", e)
             log(f"ERROR: {e}")
             time.sleep(10)
-    
+
     finally:
         if conn:
             conn.close()
