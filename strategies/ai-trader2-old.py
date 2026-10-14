@@ -6,7 +6,7 @@ import requests
 import time
 import psycopg2
 from psycopg2.extras import RealDictCursor  # Allows pulling data as a clean dictionary
-from dotenv import load_dotenv
+from dotenv import load_dotenv # pyright: ignore[reportMissingImports]
 
 load_dotenv()
 
@@ -65,7 +65,7 @@ def get_conn():
 # NEW FEATURE: FETCH PORTFOLIO POSITION FROM POSTGRES
 # --------------------------
 def get_portfolio_position(symbol):
-    """Checxks if we currently own an open position for these stocks"""
+    """Checks if we currently own an open position for these stocks"""
 
     query = """
         SELECT quantity, avg_cost

@@ -70,7 +70,7 @@ def get_portfolio_position(symbol):
     query = """
         SELECT quantity, avg_cost
         FROM portfolio_positions
-        WHERE symbol = %s 
+        WHERE symbol = %s
         AND quantity > 0
         LIMIT 1;
         """
@@ -512,7 +512,7 @@ def get_ai_decision(market_snapshot):
     BUY RULES
 
     BUY is only possible when portfolio_holding is null or shares_owned is 0.
-F
+
     Positive BUY evidence includes:
 
     - RSI below 30: strong BUY evidence
@@ -582,9 +582,18 @@ F
 
     Do not return an empty reasoning field.
 
-    OUTPUT
+    Analyse the market snapshot below.
 
-    Return ONLY valid JSON in exactly this format:
+    IMPORTANT:
+    - Do not repeat or return the market snapshot.
+    - Do not return the input data.
+    - You must make a trading decision.
+    - Your response must contain ONLY the four fields action, symbol, confidence and reasoning.
+
+
+    OUTPUT
+    Return exactly one decision using this format:
+
 
     {
     "action": "BUY",
@@ -602,18 +611,35 @@ F
     Never return markdown.
     Never return additional fields.
     """
-
+    market_data_text = f"""
+    Symbol: {market_snapshot.get("symbol")}
+    Price: {market_snapshot.get("price")}
+    RSI: {market_snapshot.get("rsi")}
+    RSI direction: {market_snapshot.get("rsi_direction")}
+    SMA20: {market_snapshot.get("sma20")}
+    SMA50: {market_snapshot.get("sma50")}
+    Price vs SMA20: {market_snapshot.get("price_vs_sma20_percent")} percent
+    Price vs SMA50: {market_snapshot.get("price_vs_sma50_percent")} percent
+    Momentum 5 periods: {market_snapshot.get("momentum_5_period_percent")} percent
+    Momentum 20 periods: {market_snapshot.get("momentum_20_period_percent")} percent
+    Volume: {market_snapshot.get("volume")}
+    Average volume: {market_snapshot.get("average_volume")}
+    Volume ratio: {market_snapshot.get("volume_ratio")}
+    Current holding: {market_snapshot.get("portfolio_holding")}
+    """
     payload = {
-        "model": "qwen3-trader",
+        "model": "qwen3:4b",
         "system": system_instructions,
         "prompt": f"""
             Analyse this market snapshot and make one trading decision
             Market snapshot:
-            {json.dumps(market_snapshot, indent=2)}
-            
-            Return the required JSON decision
+            {market_data_text}
+            Return ONLY the required JSON decision
+            Do not reture the market information.
+            Do not add any fields other than action, symbol, confidence and reasoning
             """,
         "format": "json",
+        "think": False,
         "options": {
             "num_predict": 250,
             "temperature": 0.1
@@ -643,27 +669,51 @@ F
         ollama_data = response.json()
 
         if "error" in ollama_data:
-             log(f"Ollama API Error: {ollama_data.get('error')} - Full payload: {ollama_data}")
+            log(
+                f"Ollama API Error: {ollama_data.get('error')} "
+                f" - Full payload: {ollama_data}"
+            )
 
         raw_ai_response = ollama_data.get("response", "").strip()
-        if not raw_ai_response and "thinking" in ollama_data:
+        #Qwen3 may place its json decision in the "thinking" field
+        if not raw_ai_response:
             raw_ai_response = ollama_data.get("thinking", "").strip()
 
         if not raw_ai_response:
             logging.error("Ollama payload did not contain a 'response' field.")
-            log(f"Ollama payload did not contain a 'response' field. Received keys: {list(ollama_data.keys())} - Full payload: {ollama_data}")
+            log(
+                f"Ollama returned no final response.  "
+                f"Received keys: {list(ollama_data.keys())} "
+                f" - Full payload: {ollama_data}"
+            )
             return fallback_response
 
         #return json.loads(raw_ai_response)
-    # Parse Qwen's JSON response
+        # Parse Qwen's JSON response
         decision = json.loads(raw_ai_response)
+
+        # Make sure w ereceived a trading decision,
+        # rather than a market snapshot or other JSON
+        if "action" not in decision:
+            logging.error(
+                f"Ollama returned JSON without an action field: {decision}"
+            )
+            log(
+                f"Ollama returned JSON without  an action field: {decision}"
+            )
+            return {
+                "action": "HOLD",
+                "symbol": market_snapshot.get("symbol"),
+                "confidence": 0.0,
+                "reasoning": "AI returned JSON without a trading action"
+            }
 
         # --------------------------------------------------
         # VALIDATE AI RESPONSE
         # --------------------------------------------------
 
         action = decision.get("action")
-        ai_symbol = decision.get("symbol")
+        ai_symbol = decision.get("symbol") or decision.get("ticker")
         confidence = decision.get("confidence")
         reasoning = decision.get("reasoning")
 
@@ -710,6 +760,8 @@ F
         # BUY is only allowed when we don't already own the stock
         if action == "BUY":
 
+            shares_owned = 0
+
             if portfolio_holding is not None:
 
                 shares_owned = portfolio_holding.get(
@@ -719,17 +771,17 @@ F
                 if shares_owned > 0:
 
                     log(
-                        f"SAFETY: AI requested BUY for "
-                        f"{market_snapshot.get('symbol')} but "
-                        f"already owns {shares_owned} shares. "
-                        f"Changing BUY -> HOLD."
+                        f"BUY APPROVED FOR EVALUATION: "
+                        f"{market_snapshot.get('symbol')} "
+                        f"already has {shares_owned} shares. "
+                        f"An additional purchase is permitted, "
+                        f"subject to position sizing and risk limits."
                     )
-
-                    action = "HOLD"
-                    confidence = 0.0
-                    reasoning = (
-                        "AI BUY rejected by safety check because "
-                        "a position is already held."
+                else:
+                    log(
+                       f"BUY APPROVED FOR EVALUATION: "
+                       f"{market_snapshot.get('symbol')} "
+                       f"has no exisiting position."
                     )
 
         # SELL is only allowed when we actually own the stock
