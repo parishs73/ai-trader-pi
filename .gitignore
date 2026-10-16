@@ -1,2 +1,22 @@
+# Environment variables and secrets
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Logs
+logs/
+*.log
+
+# Local database data
+database/
+
+# Local editor files
+.vscode/
+
 /logs/*
 !/logs/.gitkeep

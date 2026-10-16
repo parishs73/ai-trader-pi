@@ -6,7 +6,12 @@ import requests
 import time
 import psycopg2
 from psycopg2.extras import RealDictCursor  # Allows pulling data as a clean dictionary
-from dotenv import load_dotenv
+
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    def load_dotenv(*args, **kwargs):
+        return False
 
 load_dotenv()
 
