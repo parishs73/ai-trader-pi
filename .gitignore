@@ -1,2 +1,21 @@
-/logs/*
-!/logs/.gitkeep
+# Secrets
+.env
+.env.*
+
+# Python-generated files
+__pycache__/
+*.py[cod]
+.venv/
+
+# Logs
+logs/
+*.log
+
+# PostgreSQL data
+database/
+
+# Local model files
+models/
+
+# Local Backups
+backup/

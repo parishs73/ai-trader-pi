@@ -179,7 +179,7 @@ def run_once():
         for symbol in TICKERS:
             data = fetch_data(symbol)
             log(f"Fetching data for {data['name']} stocks...")
-
+ 
             if data:
                  if check_if_exists(conn, data["symbol"], data["timestamp"]):
                     log(f"Skipping {symbol}: Timestamp {data['timestamp']} already in database.")
@@ -194,7 +194,7 @@ def run_once():
             #print("Error:", e)
             log(f"ERROR: {e}")
             time.sleep(10)
-
+    
     finally:
         if conn:
             conn.close()

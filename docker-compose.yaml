@@ -1,5 +1,4 @@
 services:
-# Set up the database for storing stock trading data 
 
   postgres:
     image: postgres:16
@@ -17,7 +16,6 @@ services:
     volumes:
       - ./database:/var/lib/postgresql/data
 
-# Set up the dashboard for monitoring the stock trading system
   grafana:
     image: grafana/grafana
 
@@ -33,7 +31,6 @@ services:
       - grafana-data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
 
-# Set up the stock data collector service
   collector:
     build: ./collector
     container_name: stock_pipeline
@@ -43,7 +40,6 @@ services:
     environment:
       TZ: Europe/London
 
-# Set up the Ollama service for AI model execution
   ollama-service:
     image: ollama/ollama:latest
     container_name: ollama-service
@@ -60,7 +56,6 @@ services:
     ports:
       - "11434:11434"
 
-# Set up the AI executor service that runs the trading strategy
   ai-executor:
     build:
       context: ./collector # reuses collector dockerfile
@@ -76,6 +71,14 @@ services:
     environment:
       - ALPACA_API_KEY_ID=<my key>
       - ALPACA_API_SECRET_KEY=<SECRET KEY>
+
+  paper-trader:
+    build: ./paper_trader
+    container_name: paper-trader
+    restart: unless-stopped
+    volumes:
+      - ./logs:/apps/logs
+      - ./paper_trader:/app
 
 volumes:
   grafana-data:

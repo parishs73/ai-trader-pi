@@ -58,13 +58,13 @@ def log(message):
 # -------------------------
 
 def get_latest_price(cur, symbol):
-
+    
     cur.execute(
         "select close FROM stock_data where symbol = %s order by timestamp DESC Limit 1;",
             (symbol,)
     )
 
-    row = cur.fetchone()
+    row = cur.fetchone() 
     if row:
         return float(row[0])
 
@@ -81,7 +81,7 @@ def get_cash_balance(cur):
         )
 
         return float(cur.fetchone()[0])
-
+    
 # --------------------------
 # GET POSITION
 # --------------------------
@@ -98,18 +98,18 @@ def get_position(cur, symbol):
 # -------------------------
 
 def execute_buy(conn, cur, signal_id, symbol):
-
+    
     price= get_latest_price(cur, symbol)
 
     if not price:
         return
-
+    
     existing = get_position(cur, symbol)
 
     if existing:
         logging.info(f"{symbol} already owned")
         return
-
+    
     cash = get_cash_balance(cur)
 
     shares = int(POSITION_SIZE / price)
@@ -119,7 +119,7 @@ def execute_buy(conn, cur, signal_id, symbol):
     if cost > cash:
         log(f"WARNING:Insufficient cash")
         return
-
+    
 
     cur.execute(
         "INSERT into portfolio_trades (timestamp, symbol, trade_type, quantity, price, trade_value, signal_id) VALUES (%s,%s,%s,%s,%s,%s,%s)",
@@ -168,10 +168,10 @@ def execute_sell(conn, cur, signal_id, symbol):
             updated_at = now()""",
             (proceeds,profit)
     )
-
+    
 
     conn.commit()
-
+    
     logging.info(f"SELL {quantity} {symbol} @ {price}")
 
 # ---------------------
@@ -238,13 +238,13 @@ def update_portfolio_summary(cur):
     row = cur.fetchone()
     if row is None:
         logging.info("portfolio_summary is completely empty. Seeding starting balance of $100,000.00...")
-
+        
         # Adjust your column names here if they differ (e.g., cash, realized_pnl, etc.)
         cur.execute("""
-            INSERT INTO portfolio_summary (cash_balance, realized_pnl)
+            INSERT INTO portfolio_summary (cash_balance, realized_pnl) 
             VALUES (%s, %s);
         """, (100000.00, 0.00))
-
+        
         # Set the local variables so the rest of this function can continue running smoothly
         cash = 100000.00
         realized = 0.00

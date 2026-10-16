@@ -70,7 +70,7 @@ def get_portfolio_position(symbol):
     query = """
         SELECT quantity, avg_cost
         FROM portfolio_positions
-        WHERE symbol = %s
+        WHERE symbol = %s 
         AND quantity > 0
         LIMIT 1;
         """
@@ -589,11 +589,11 @@ def get_ai_decision(market_snapshot):
     - Do not return the input data.
     - You must make a trading decision.
     - Your response must contain ONLY the four fields action, symbol, confidence and reasoning.
-
+    
 
     OUTPUT
     Return exactly one decision using this format:
-
+    
 
     {
     "action": "BUY",
@@ -670,9 +670,9 @@ def get_ai_decision(market_snapshot):
 
         if "error" in ollama_data:
             log(
-                f"Ollama API Error: {ollama_data.get('error')} "
-                f" - Full payload: {ollama_data}"
-            )
+		f"Ollama API Error: {ollama_data.get('error')} "
+		f" - Full payload: {ollama_data}"
+	    )
 
         raw_ai_response = ollama_data.get("response", "").strip()
         #Qwen3 may place its json decision in the "thinking" field
@@ -685,15 +685,15 @@ def get_ai_decision(market_snapshot):
                 f"Ollama returned no final response.  "
                 f"Received keys: {list(ollama_data.keys())} "
                 f" - Full payload: {ollama_data}"
-            )
+	    )
             return fallback_response
 
         #return json.loads(raw_ai_response)
         # Parse Qwen's JSON response
         decision = json.loads(raw_ai_response)
-
-        # Make sure w ereceived a trading decision,
-        # rather than a market snapshot or other JSON
+	
+	# Make sure w ereceived a trading decision,
+	# rather than a market snapshot or other JSON
         if "action" not in decision:
             logging.error(
                 f"Ollama returned JSON without an action field: {decision}"
@@ -706,7 +706,7 @@ def get_ai_decision(market_snapshot):
                 "symbol": market_snapshot.get("symbol"),
                 "confidence": 0.0,
                 "reasoning": "AI returned JSON without a trading action"
-            }
+	    }
 
         # --------------------------------------------------
         # VALIDATE AI RESPONSE
