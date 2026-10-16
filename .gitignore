@@ -1,22 +1,21 @@
-# Environment variables and secrets
+# Secrets
 .env
 .env.*
 
-# Python
+# Python-generated files
 __pycache__/
 *.py[cod]
 .venv/
-venv/
 
 # Logs
 logs/
 *.log
 
-# Local database data
+# PostgreSQL data
 database/
 
-# Local editor files
-.vscode/
+# Local model files
+models/
 
-/logs/*
-!/logs/.gitkeep
+# Local Backups
+backup/
